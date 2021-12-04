@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({
 // Configure multer so that it will upload to '../front-end/public/images'
 const multer = require('multer')
 const upload = multer({
-    dest: '../front-end/public/images/',
+    dest: '../vue/public/images/',
     limits: {
         fileSize: 10000000
     }
@@ -22,6 +22,7 @@ const upload = multer({
 const itemSchema = new mongoose.Schema({
     title: String,
     discription: String,
+    page: Number,
     path: String,
 });
 
@@ -41,12 +42,12 @@ app.post('/api/photos', upload.single('photo'), async(req, res) => {
 });
 
 
-
 // connect to the database
 mongoose.connect('mongodb://127.0.0.1:27017/museum', {
     useNewUrlParser: true
 });
 
+var latestPageNum = 0;
 
 app.listen(3000, () => console.log('Server listening on port 3000!'));
 
@@ -55,6 +56,7 @@ app.post('/api/items', async(req, res) => {
     const item = new Item({
         title: req.body.title,
         discription: req.body.discription,
+        page: latestPageNum, //TODO: THIS NEEDS TO BE FIXED
         path: req.body.path,
     });
     try {
@@ -64,6 +66,8 @@ app.post('/api/items', async(req, res) => {
         console.log(error);
         res.sendStatus(500);
     }
+
+    latestPageNum++;
 });
 
 // Get a list of all of the items in the museum.
