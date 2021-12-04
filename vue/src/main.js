@@ -16,7 +16,12 @@ Vue.use(IconsPlugin)
 
 Vue.config.productionTip = false
 
+let data = {
+    user: "USER",
+}
+
 new Vue({
-  router,
-  render: (h) => h(App),
+    router,
+    data: data,
+    render: (h) => h(App),
 }).$mount('#app')

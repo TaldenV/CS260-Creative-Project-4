@@ -16,9 +16,3 @@ export default {
   name: 'Home',
 }
 </script>
-
-<style scoped>
-* {
-  border-color: red;
-}
-</style>
