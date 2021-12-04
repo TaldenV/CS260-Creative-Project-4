@@ -1,6 +1,11 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
+    <div id="tools">
+      <form v-on:submit.prevent="addObject">
+        <input type="text" v-model="newObject" />
+        <button type="submit">Add</button>
+      </form>
+    </div>
   </div>
 </template>
 
