@@ -1,107 +1,131 @@
-const express = require('express');
-const bodyParser = require("body-parser");
+var express = require('express');
+var router = express();
 
-const mongoose = require('mongoose');
+/* GET home page. */
+router.get('/', function(req, res, next) {
+  res.render('index', { title: 'Express' });
+});
 
-const app = express();
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: false
-}));
+module.exports = router;
+var mongoose = require('mongoose');
+var ObjectSchema = new mongoose.Schema({
+  title: String,
+  text: String,
+  imageName: String,
+  page: {type: Number, default: 0}
+});
 
-// Configure multer so that it will upload to '../front-end/public/images'
+ObjectSchema.methods.imageChange = function(newName, cb) {
+  this.imageName = newName;
+  this.save(cb);
+};
+
+ObjectSchema.methods.titleChange = function(newTitle, cb) {
+  this.title = newTitle;
+  this.save(cb);
+};
+
+ObjectSchema.methods.textChange = function(newText, cb) {
+  this.text = newText;
+  this.save(cb);
+};
+mongoose.connect('mongodb://localhost:27017/objects', {
+  useNewUrlParser: true
+});
+
+mongoose.model('Object', ObjectSchema);
+
+var mongoose = require('mongoose');
+var Object = mongoose.model('Object');
+router.get('/objects', function(req, res, next) {
+  Object.find(function(err, objects){
+    if(err){ return next(err); }
+    res.json(objects);
+  });
+});
+
 const multer = require('multer')
-const upload = multer({
-    dest: '../vue/public/images/',
+  var storage = multer.diskStorage({
+    destination: 'public/images/',
+    filename: function (req, file, cb) {
+    console.log(file)
+    cb(null, file.originalname)
+  },
     limits: {
-        fileSize: 10000000
+      fileSize: 10000000
     }
+  });
+var upload =  multer({ storage: storage });
+router.listen(3000, () => console.log('Server listening on port 3000!'));
+
+router.post('/image',upload.single('photo'), (req, res) => {
+     console.log(req.file);
+     res.send({
+    path: "public/images/" + req.file.filename
+  });
+}, (error, req, res, next) => {
+     res.status(400).send({ error: error.message }) //code from bacancytechnology
+})
+
+router.post('/objects', function(req, res, next) {
+  console.log(req.body);
+  var object = new Object(req.body);
+  object.save(function(err, object){
+    if(err){ return next(err); }
+    res.json(object);
+  });
 });
-
-// Create a scheme for items in the museum: a title and a path to an image.
-const itemSchema = new mongoose.Schema({
-    title: String,
-    discription: String,
-    page: Number,
-    path: String,
+router.param('object', function(req, res, next, id) {
+  var query = Object.findById(id);
+  query.exec(function (err, object){
+    if (err) { return next(err); }
+    if (!object) { return next(new Error("can't find comment")); }
+    req.object = object;
+    return next();
+  });
 });
-
-// Create a model for items in the museum.
-const Item = mongoose.model('Item', itemSchema);
-
-// Upload a photo. Uses the multer middleware for the upload and then returns
-// the path where the photo is stored in the file system.
-app.post('/api/photos', upload.single('photo'), async(req, res) => {
-    // Just a safety check
-    if (!req.file) {
-        return res.sendStatus(400);
-    }
-    res.send({
-        path: "/images/" + req.file.filename
+router.put('/objects/image/:object', function(req, res, next) {
+  req.object.imageChange(req.body.imageName, function(err, object){
+    if (err) { return next(err); }
+    res.json(object);
+  });
+});
+router.put('/objects/title/:object', function(req, res, next) {
+  req.object.titleChange(req.body.title, function(err, object){
+    if (err) { return next(err); }
+    res.json(object);
+  });
+});
+router.put('/objects/text/:object', function(req, res, next) {
+  req.object.textChange(req.body.text, function(err, object){
+    if (err) { return next(err); }
+    res.json(object);
+  });
+});
+router.delete('/objects/:id', function(req, res, next) {
+  try {
+    var query = Object.deleteOne({
+      _id: req.params.id
     });
+    query.exec(function(err, objects){
+    if(err){ return next(err); }
+    console.log(objects);
+    res.json(objects);
+  });
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+});
+router.get('/objects/:object', function(req, res) {
+  res.json(req.object);
 });
 
 
-// connect to the database
-mongoose.connect('mongodb://127.0.0.1:27017/museum', {
-    useNewUrlParser: true
-});
-
-var latestPageNum = 0;
-
-app.listen(3000, () => console.log('Server listening on port 3000!'));
-
-// Create a new item in the museum: takes a title and a path to an image.
-app.post('/api/items', async(req, res) => {
-    const item = new Item({
-        title: req.body.title,
-        discription: req.body.discription,
-        page: latestPageNum, //TODO: THIS NEEDS TO BE FIXED
-        path: req.body.path,
-    });
-    try {
-        await item.save();
-        res.send(item);
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-    }
-
-    latestPageNum++;
-});
-
-// Get a list of all of the items in the museum.
-app.get('/api/items', async(req, res) => {
+router.get('/api/items', async(req, res) => {
     try {
         let items = await Item.find();
         res.send(items);
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-    }
-});
-
-app.delete('/api/items/:id', async(req, res) => {
-    try {
-        await Item.deleteOne({
-            _id: req.params.id
-        });
-        res.sendStatus(200);
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-    }
-});
-
-app.put('/api/items/:id', async(req, res) => {
-    try {
-        let item = await Item.findOne({
-            _id: req.params.id
-        });
-        item.title = req.body.title;
-        item.discription = req.body.discription;
-        await item.save();
-        res.sendStatus(200);
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
