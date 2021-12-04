@@ -1,14 +1,4 @@
 <template>
-<<<<<<< HEAD
-  <div>Add HTML Here</div>
-</template>
-
-<script>
-export default {
-  name: 'Notes',
-}
-</script>
-=======
   <div id="app">
     <div id="display">
       <div id="title">{{ user }}'s NoteBook</div>
@@ -50,26 +40,26 @@ export default {
 </template>
 
 <script>
-import axios from "axios";
+import axios from 'axios'
 
 export default {
-  name: "Add",
+  name: 'Add',
   data() {
     return {
       objects: [],
       currentObject: {},
-      newTitle: "",
-      newObject: "",
+      newTitle: '',
+      newObject: '',
       currPageNum: 0,
       newPageNum: 0,
-    };
+    }
   },
   created() {
-    this.getItems();
+    this.getItems()
   },
   computed: {
     sortedObjects() {
-      return this.objects;
+      return this.objects
       // return this.objects.sort((a, b) => {
       //   var rval = 0;
       //   if (a.page > b.page) {
@@ -84,14 +74,13 @@ export default {
   methods: {
     async getItems() {
       try {
-        let response = await axios.get("/api/items");
-        this.objects = response.data;
-        return true;
+        let response = await axios.get('/api/items')
+        this.objects = response.data
+        return true
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
     },
   },
-};
+}
 </script>
->>>>>>> 8f39b34b2ac0215a7d125ecb2ee96da8995427c1

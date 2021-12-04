@@ -19,30 +19,24 @@
 </template>
 
 <script>
-<<<<<<< HEAD
-export default {
-  name: 'Add',
-}
-</script>
-=======
-import axios from "axios";
+import axios from 'axios'
 
 export default {
-  name: "Add",
+  name: 'Add',
   data() {
     return {
       objects: [],
-      title: "",
-      text: "",
-    };
+      title: '',
+      text: '',
+    }
   },
   created() {
-    this.getItems();
+    this.getItems()
   },
   computed: {
     sortedObjects() {
       // if (this.objects == []) {
-      return this.objects;
+      return this.objects
       // } else {
       //   return this.objects.sort((a, b) => {
       //     var rval = 0;
@@ -58,33 +52,32 @@ export default {
   },
   methods: {
     fileChanged(event) {
-      this.file = event.target.files[0];
+      this.file = event.target.files[0]
     },
     async getItems() {
       try {
-        let response = await axios.get("/api/items");
-        this.objects = response.data;
-        return true;
+        let response = await axios.get('/api/items')
+        this.objects = response.data
+        return true
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
     },
     async upload() {
       try {
-        const formData = new FormData();
-        formData.append("photo", this.file, this.file.name);
-        let r1 = await axios.post("/api/photos", formData);
-        let r2 = await axios.post("/api/items", {
+        const formData = new FormData()
+        formData.append('photo', this.file, this.file.name)
+        let r1 = await axios.post('/api/photos', formData)
+        let r2 = await axios.post('/api/items', {
           title: this.title,
           text: this.discription,
           path: r1.data.path,
-        });
-        this.addItem = r2.data;
+        })
+        this.addItem = r2.data
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
     },
   },
-};
+}
 </script>
->>>>>>> 8f39b34b2ac0215a7d125ecb2ee96da8995427c1
