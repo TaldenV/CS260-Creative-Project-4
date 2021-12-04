@@ -2,6 +2,9 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 
+// css main page
+import './assets/stylesheets/main.css'
+
 // Bootstrap-Vue add in
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 
@@ -17,11 +20,11 @@ Vue.use(IconsPlugin)
 Vue.config.productionTip = false
 
 let data = {
-    user: "USER",
+  user: 'USER',
 }
 
 new Vue({
-    router,
-    data: data,
-    render: (h) => h(App),
+  router,
+  data: data,
+  render: (h) => h(App),
 }).$mount('#app')
