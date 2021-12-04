@@ -1,6 +1,4 @@
 var express = require('express');
-
-const bodyParser = require("body-parser");
 var router = express();
 
 /* GET home page. */
@@ -48,8 +46,9 @@ router.get('/objects', function(req, res, next) {
 
 const multer = require('multer')
   var storage = multer.diskStorage({
-    destination: '../vue/public/images/',
+    destination: 'public/images/',
     filename: function (req, file, cb) {
+    console.log(file)
     cb(null, file.originalname)
   },
     limits: {
@@ -57,14 +56,10 @@ const multer = require('multer')
     }
   });
 var upload =  multer({ storage: storage });
-
-router.use(bodyParser.json());
-router.use(bodyParser.urlencoded({
-  extended: false
-}));
 router.listen(3000, () => console.log('Server listening on port 3000!'));
 
 router.post('/image',upload.single('photo'), (req, res) => {
+     console.log(req.file);
      res.send({
     path: "public/images/" + req.file.filename
   });
@@ -74,7 +69,6 @@ router.post('/image',upload.single('photo'), (req, res) => {
 
 router.post('/objects', function(req, res, next) {
   console.log(req.body);
-console.log("great");
   var object = new Object(req.body);
   object.save(function(err, object){
     if(err){ return next(err); }
