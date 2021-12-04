@@ -23,6 +23,12 @@
   </div>
 </template>
 
+<script>
+export default {
+  name: 'NotFound',
+}
+</script>
+
 <style>
 .paragraph-text {
   font-size: 18px;
